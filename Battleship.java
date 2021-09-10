@@ -38,8 +38,21 @@ public class Battleship {
 
 	private void placeShips() {
 		for (Player player : new Player[] {player1, player2}) {
+			if (player.printGameOnTurn) {
+				printGame(player, false);
+			}
+
 			for (int i = 0; i < SHIP_NAMES.length; i++) {
 				player.placeShip(scanner, SHIP_NAMES[i], SHIP_LENGTHS[i]);
+				
+				if (player.printGameOnTurn) {
+					printGame(player, false);
+				}
+
+				System.out.println("ships: ");
+				for (Ship ship : player.board.getShips()) {
+					System.out.println(ship + " " + ship.position);
+				}
 			}
 		}
 	}
@@ -60,21 +73,20 @@ public class Battleship {
 
 	public void printGame(Player playerPerspective, boolean isPlayerTurn) {
 		boolean showBoth = playerPerspective == null; // if playerPerspective is null, show the ships on both boards...
-		playerPerspective = playerPerspective == null ? player1 : player2; // then default the left board to player1
+		playerPerspective = playerPerspective == null ? player1 : playerPerspective; // then default the left board to player1
 		Board leftBoard = playerPerspective == player1 ? player1Board : player2Board;
 		Board rightBoard = playerPerspective == player1 ? player2Board : player1Board;
 		Player opponent = playerPerspective == player1 ? player2 : player1;
 
 		final String resetColor = "\033[0m", activeTurnColor = "\033[0;97;40m", inactiveTurnColor = "\033[1;97;101m";
-		final String 
-			firstColor = isPlayerTurn ? activeTurnColor : inactiveTurnColor, 
-			secondColor = isPlayerTurn ? inactiveTurnColor : activeTurnColor;
-		final String separator = resetColor + "        " + secondColor;
+		final String leftColor = isPlayerTurn ? activeTurnColor : inactiveTurnColor;
+		final String rightColor = isPlayerTurn ? inactiveTurnColor : activeTurnColor;
+		final String separator = resetColor + "        " + rightColor;
 
 		String str = "";
 
 		String BC = " "; // border character
-		str += firstColor;
+		str += leftColor;
 	
 		// top border
 		int lNameLen = playerPerspective.toString().length();
@@ -87,8 +99,8 @@ public class Battleship {
 
 		// board rows
 		for (int y = 0; y < Board.HEIGHT; y++) {
-			str += firstColor + (char)('A' + y) + leftBoard.getRowString(y, true) + firstColor + BC + 
-				separator + (char)('A' + y) + rightBoard.getRowString(y, false || showBoth) + secondColor + BC + resetColor;
+			str += leftColor + (char)('A' + y) + leftBoard.getRowString(y, true) + leftColor + BC + 
+				separator + (char)('A' + y) + rightBoard.getRowString(y, false || showBoth) + rightColor + BC + resetColor;
 
 			if (y < SHIP_NAMES.length) {
 				String displayShipName = SHIP_NAMES[y];
@@ -100,11 +112,11 @@ public class Battleship {
 		} 
 
 		// bottom border
-		str += firstColor + BC;
+		str += leftColor + BC;
 		for (int x = 0; x < Board.WIDTH; x++) {
 			str += x;
 		}
-		str += BC + separator + secondColor + BC;
+		str += BC + separator + rightColor + BC;
 		for (int x = 0; x < Board.WIDTH; x++) {
 			str += x;
 		}

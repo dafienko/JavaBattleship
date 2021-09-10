@@ -25,11 +25,6 @@ public class Player {
 	}
 
 	public void placeShip(Scanner scanner, String shipName, int shipLength) {
-		if (true) {
-			board.addShip(shipName, shipLength);
-			return;
-		}
-
 		// determine ship orientation
 		boolean horizontal = false;
 		System.out.print("Enter ship orientation ('H'orizontal, 'V'ertical, or 'R'andom): ");
