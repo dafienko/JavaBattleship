@@ -3,26 +3,44 @@ import java.util.Scanner;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
+import static ConsoleUtil.ConsoleUtil.*;
+
 public class Battleship {
-	private final Board playerBoard, computerBoard;
+	private final Board player1Board, player2Board;
+	private final Player player1, player2;
 	private final Scanner scanner;
 
-	public Battleship() {
-		playerBoard = new Board();
-		computerBoard = new Board();
+	private static final String[] SHIP_NAMES = {
+		"Carrier", 
+		"Battleship",
+		"Cruiser", 
+		"Submarine",
+		"Destroyer"
+	};
 
-		
+	private static final int[] SHIP_LENGTHS = {
+		5,
+		4,
+		3,
+		3,
+		2
+	};
+
+	public Battleship() {
+		player1Board = new Board();
+		player2Board = new Board();
+
+		player1 = new Player(player1Board, player2Board, "YOU");
+		player2 = new PlayerAI(player2Board, player1Board, "CPU");
 
 		scanner = new Scanner(System.in);
 	}
 
 	private void placeShips() {
-		for (Board b : new Board[] {playerBoard, computerBoard}) {
-			b.addShip("Carrier", 5);
-			b.addShip("Battleship", 4);
-			b.addShip("Cruiser", 3);
-			b.addShip("Submarine", 3);
-			b.addShip("Destroyer", 2);
+		for (Player player : new Player[] {player1, player2}) {
+			for (int i = 0; i < SHIP_NAMES.length; i++) {
+				player.placeShip(scanner, SHIP_NAMES[i], SHIP_LENGTHS[i]);
+			}
 		}
 	}
 
@@ -30,11 +48,27 @@ public class Battleship {
 		return false;
 	}
 
-	public void printGame(boolean playerTurn) {
+	public boolean playerWon(Player player) {
+		for (Ship ship : player.enemyBoard.getShips()) {
+			if (!ship.isSunk(player.enemyBoard)) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	public void printGame(Player playerPerspective, boolean isPlayerTurn) {
+		boolean showBoth = playerPerspective == null; // if playerPerspective is null, show the ships on both boards...
+		playerPerspective = playerPerspective == null ? player1 : player2; // then default the left board to player1
+		Board leftBoard = playerPerspective == player1 ? player1Board : player2Board;
+		Board rightBoard = playerPerspective == player1 ? player2Board : player1Board;
+		Player opponent = playerPerspective == player1 ? player2 : player1;
+
 		final String resetColor = "\033[0m", activeTurnColor = "\033[0;97;40m", inactiveTurnColor = "\033[1;97;101m";
 		final String 
-			firstColor = playerTurn ? activeTurnColor : inactiveTurnColor, 
-			secondColor = playerTurn ? inactiveTurnColor : activeTurnColor;
+			firstColor = isPlayerTurn ? activeTurnColor : inactiveTurnColor, 
+			secondColor = isPlayerTurn ? inactiveTurnColor : activeTurnColor;
 		final String separator = resetColor + "        " + secondColor;
 
 		String str = "";
@@ -43,15 +77,26 @@ public class Battleship {
 		str += firstColor;
 	
 		// top border
-		str += BC.repeat(1 + (Board.WIDTH - 3) / 2) + "You" + BC.repeat(1 + (int)Math.ceil((Board.WIDTH - 3.0f) / 2.0f));
+		int lNameLen = playerPerspective.toString().length();
+		int rNameLen = opponent.toString().length();
+
+		str += BC.repeat(1 + (Board.WIDTH - lNameLen) / 2) + playerPerspective + BC.repeat(1 + (int)Math.ceil((float)(Board.WIDTH - lNameLen) / 2.0f));
 		str += separator;
-		str += BC.repeat(1 + (Board.WIDTH - 3) / 2) + "CPU" + BC.repeat(1 + (int)Math.ceil((Board.WIDTH - 3.0f) / 2.0f));
+		str += BC.repeat(1 + (Board.WIDTH - rNameLen) / 2) + opponent + BC.repeat(1 + (int)Math.ceil((float)(Board.WIDTH - rNameLen) / 2.0f));
 		str += resetColor + "\n";
 
 		// board rows
 		for (int y = 0; y < Board.HEIGHT; y++) {
-			str += firstColor + (char)('A' + y) + playerBoard.getRowString(y, true) + firstColor + BC + 
-				separator + (char)('A' + y) + computerBoard.getRowString(y, false) + secondColor + BC + resetColor + "\n";
+			str += firstColor + (char)('A' + y) + leftBoard.getRowString(y, true) + firstColor + BC + 
+				separator + (char)('A' + y) + rightBoard.getRowString(y, false || showBoth) + secondColor + BC + resetColor;
+
+			if (y < SHIP_NAMES.length) {
+				String displayShipName = SHIP_NAMES[y];
+				str += "\t" + displayShipName + ": " + 
+					(playerPerspective.enemyBoard.isShipAlive(displayShipName) ? "☐" : "☑");
+			}
+
+			str += "\n";
 		} 
 
 		// bottom border
@@ -70,57 +115,49 @@ public class Battleship {
 		System.out.println(str);
 	}
 
-	public void playerTurn() {
-		System.out.println("Your turn");
-		printGame(true);
+	private void doTurn(Player player) {
+		Player opponent = player == player1 ? player2 : player1;
+		Board opponentBoard = player == player1 ? player2Board : player1Board;
 
-		System.out.print("Guess a coordinate (enter a column number and a row letter): ");
-		Coordinate coord = Coordinate.scanCoordinate(scanner);
-		Board.CellState stateAtCoord = computerBoard.getCellStateAtCoordinate(coord);
-		while (stateAtCoord == Board.CellState.HIT || stateAtCoord == Board.CellState.MISS) {
-			System.out.print("already guessed coordinate " + coord + ", guess again: ");
-			coord = Coordinate.scanCoordinate(scanner);
-			stateAtCoord = computerBoard.getCellStateAtCoordinate(coord);
+		System.out.println("\n" + player + " turn");
+		if (player.printGameOnTurn) {
+			printGame(player, true);
 		}
-		
-		Board.HitData hitData = computerBoard.shootAt(coord);
-		printGame(true);
-		System.out.println("You guessed " + coord);
+		Coordinate coord = player.guessCoordinate(scanner);
+
+		Board.HitData hitData = opponentBoard.shootAt(coord);
+		if (player.printGameOnTurn) {
+			printGame(player, true);
+		}
+		System.out.println(player + " guessed " + coord);
 		System.out.println(coord + " was a " + (hitData.hitShip ? "hit" : "miss") + "!");
 		if (hitData.sunkShip != null) {
-			System.out.println("You sunk computer's " + hitData.sunkShip);
+			System.out.println(
+				getColorStr(OutputModifier.FG_RED) +
+				player + " sunk " + opponent + "'s " + hitData.sunkShip + 
+				getColorStr(OutputModifier.RESET)
+			);
 		}
 
-		System.out.print("press enter to continue... ");
-		scanner.nextLine();
-	}
-
-	public void computerTurn() {
-		System.out.println("Computer turn");
-		Coordinate coord = Coordinate.random();
-		Board.CellState stateAtCoord = computerBoard.getCellStateAtCoordinate(coord);
-		while (stateAtCoord == Board.CellState.HIT || stateAtCoord == Board.CellState.MISS) {
-			coord = Coordinate.random();
-			stateAtCoord = computerBoard.getCellStateAtCoordinate(coord);
-		}
-		
-		Board.HitData hitData = playerBoard.shootAt(coord);
-		
-		printGame(false);
-		System.out.println("Computer guessed " + coord);
-		System.out.println(coord + " was a " + (hitData.hitShip ? "hit" : "miss") + "!");
-		if (hitData.sunkShip != null) {
-			System.out.println("Computer sunk your " + hitData.sunkShip);
-		}
 		System.out.print("press enter to continue... ");
 		scanner.nextLine();
 	}
 
 	public void play() {
 		while (!gameOver()) {
-			playerTurn();
-			computerTurn();
+			doTurn(player1);
+			if (playerWon(player1)) {
+				break;
+			}
+			doTurn(player2);
 		}
+		
+		
+		Player victor = playerWon(player1) ? player1 : player2;
+		printGame(null, victor == player1);
+		System.out.println(
+			getColorStr(OutputModifier.FG_YELLOW) + victor + " Won!" + getColorStr(OutputModifier.RESET)
+		);
 		
 		scanner.close();
 	}
@@ -133,9 +170,41 @@ public class Battleship {
 
 	@Test
 	public void testCoordinates() {
-		assertEquals(new Coordinate(0, 0), new Coordinate(0, 'A'));
-		assertEquals(new Coordinate(0, 0), Coordinate.getCoordinateFromString("a0"));
-		assertEquals(new Coordinate(0, 0), Coordinate.getCoordinateFromString("0a"));
-		assertEquals(new Coordinate(8, 'H'), Coordinate.getCoordinateFromString("ha"));
+		Coordinate a01 = new Coordinate(0, 'A');
+		Coordinate a02 = new Coordinate(0, 0);
+		Coordinate a03 = Coordinate.getCoordinateFromString("a0");
+		Coordinate a04 = Coordinate.getCoordinateFromString("0a");
+		assertEquals(a01, a02);
+		assertEquals(a02, a03);
+		assertEquals(a02, a04);
+	}
+
+	@Test 
+	public void testColorText() {
+		System.out.println(
+			getColorStr(OutputModifier.UNDERLINE, OutputModifier.FG_RED) +
+			"red underlined text" + 
+			getColorStr(OutputModifier.RESET)
+		);
+
+		System.out.println("normal text");
+
+		System.out.println(
+			getColorStr(OutputModifier.BLINKING, OutputModifier.FG_GREEN) +
+			"green blinking text" + 
+			getColorStr(OutputModifier.RESET)
+		);
+
+		System.out.println(
+			getColorStr(OutputModifier.FG_RED, OutputModifier.BG_YELLOW) +
+			"red text yellow background" + 
+			getColorStr(OutputModifier.RESET)
+		);
+
+		System.out.println(
+			getColorStr(OutputModifier.FG_BLUE, OutputModifier.BG_WHITE) +
+			"blue text white background" + 
+			getColorStr(OutputModifier.RESET)
+		);
 	}
 }

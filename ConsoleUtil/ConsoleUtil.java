@@ -1,10 +1,11 @@
+package ConsoleUtil;
+
 //https://xdevs.com/guide/color_serial/
 
 public class ConsoleUtil {
 	public enum OutputModifier {
 		// misc
 		RESET(0),
-		BOLD(1),
 		UNDERLINE(4),
 		BLINKING(5),
 

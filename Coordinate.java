@@ -21,6 +21,8 @@ public class Coordinate {
 	}
 
 	public static Coordinate getCoordinateFromString(String str) {
+		str = str.toUpperCase();
+		
 		int x;
 		try {
 			String numStr = str.replaceAll("[^\\d.]", "");
@@ -45,7 +47,7 @@ public class Coordinate {
 			System.out.println("no column letter given");
 			return null;
 		}
-		if (y >= 'A' + Board.HEIGHT - 1) {
+		if (y > 'A' + Board.HEIGHT - 1) {
 			System.out.println("column letter out of range, must between 'A' and '" + (char)('A' + Board.HEIGHT - 1) + "'");
 			return null;
 		}
@@ -55,10 +57,14 @@ public class Coordinate {
 
 	public static Coordinate scanCoordinate(Scanner scanner) {
 		Coordinate coord = null;
+		boolean first = true;
 		do {
 			String line = scanner.nextLine().toUpperCase();
-			
+			if (!first) {
+				System.out.println("Invalid coordinate given, try again");
+			}
 			coord = Coordinate.getCoordinateFromString(line);
+			first = false;
 		} while (coord == null);
 
 		return coord;
@@ -75,6 +81,6 @@ public class Coordinate {
 			return false;
 
 		Coordinate c = (Coordinate)o;
-		return x == c.x && y == c.y;
+		return this.x == c.x && this.y == c.y;
 	}
 }

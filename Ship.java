@@ -3,11 +3,10 @@ import java.util.Set;
 
 public class Ship {
 	public final String name;
-	/*
-	private final int length;
-	private final Coordinate position; // position is always top-left of ship
-	private final boolean horizontal; // default vertical;
-	*/
+	public final int length;
+	public final Coordinate position; // position is always top-left of ship
+	public final boolean horizontal; // default vertical;
+
 	private final Set<Coordinate> occupiedCoordinates;
 
 	public static Set<Coordinate> getShipFootprint(Coordinate position, int length, boolean horizontal) {
@@ -29,11 +28,9 @@ public class Ship {
 
 	public Ship(String name, Coordinate position, int length, boolean horizontal) {
 		this.name = name;
-		/*
 		this.length = length;
 		this.position = position; 
 		this.horizontal = horizontal;
-		*/
 
 		this.occupiedCoordinates = getShipFootprint(position, length, horizontal);
 	}

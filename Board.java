@@ -75,6 +75,28 @@ public class Board {
 		return null;
 	}
 
+	public Set<Ship> getShips() {
+		return new HashSet<Ship>(ships);
+	}
+
+	public boolean isShipAlive(String shipName) {
+		for (Ship ship : ships) {
+			if (ship.name.equals(shipName)) {
+				for (Coordinate coord : ship.getFootprint()) {
+					CellState state = getCellStateAtCoordinate(coord);
+
+					if (state != CellState.HIT) {
+						return true;
+					}
+				}
+
+				return false;
+			}
+		}
+
+		return false;
+	}
+
 	private boolean isShipSunk(Ship ship) {
 		for (Coordinate c : ship.getFootprint()) {
 			if (getCellStateAtCoordinate(c) != CellState.HIT) {
@@ -171,7 +193,7 @@ public class Board {
 		return str;
 	}
 
-	private boolean isRegionOccupied(Coordinate position, int length, boolean horizontal) {
+	public boolean isRegionOccupied(Coordinate position, int length, boolean horizontal) {
 		for (Coordinate c : Ship.getShipFootprint(position, length, horizontal)) {
 
 			CellState state = getCellStateAtCoordinate(c);
@@ -202,8 +224,12 @@ public class Board {
 		Coordinate pos = getRandomShipPosition(length, horizontal);
 
 		Ship ship = new Ship(name, pos, length, horizontal);
+		addShip(ship);
+	}
+
+	public void addShip(Ship ship) {
 		ships.add(ship);
-		for (Coordinate c : Ship.getShipFootprint(pos, length, horizontal)) {
+		for (Coordinate c : Ship.getShipFootprint(ship.position, ship.length, ship.horizontal)) {
 			grid[c.x][c.y] = CellState.SHIP;
 		}
 	}
