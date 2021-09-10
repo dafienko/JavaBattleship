@@ -1,18 +1,21 @@
 import java.util.Random;
 import java.util.Set;
+
 import java.util.HashSet;
+
+import static ConsoleUtil.ConsoleUtil.*;
 
 public class Board {
 	public static final int WIDTH = 10, HEIGHT = 10;
 	private static final Random rand = new Random();
 
 	private static final String  // terminal color codes - https://i.stack.imgur.com/9UVnC.png
-		WATER_COLOR_1 = "46", 
-		WATER_COLOR_2 = "106", 
-		HIT_COLOR = "100;31", 
-		MISS_FG_COLOR = "97", 
-		SHIP_COLOR = "97;107",
-		RESET_COLOR = "\033[0m";
+		WATER_COLOR_1 = getColorStr(false, false, OutputModifier.BG_CYAN), 
+		WATER_COLOR_2 = getColorStr(false, false, OutputModifier.BG_LIGHTBLUE), 
+		HIT_COLOR = getColorStr(false, false, OutputModifier.FG_RED), 
+		MISS_FG_COLOR = getColorStr(false, false, OutputModifier.FG_YELLOW), 
+		SHIP_COLOR = getColorStr(false, false, OutputModifier.FG_WHITE, OutputModifier.BG_WHITE),
+		RESET_COLOR = getColorStr(OutputModifier.RESET);
 
 	public enum CellState {
 		WATER {

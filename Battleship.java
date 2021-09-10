@@ -48,11 +48,6 @@ public class Battleship {
 				if (player.printGameOnTurn) {
 					printGame(player, false);
 				}
-
-				System.out.println("ships: ");
-				for (Ship ship : player.board.getShips()) {
-					System.out.println(ship + " " + ship.position);
-				}
 			}
 		}
 	}

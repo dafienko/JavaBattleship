@@ -1,6 +1,7 @@
 package ConsoleUtil;
 
-//https://xdevs.com/guide/color_serial/
+//	https://misc.flogisoft.com/bash/tip_colors_and_formatting
+//	https://misc.flogisoft.com/bash/tip_colors_and_formatting
 
 public class ConsoleUtil {
 	public enum OutputModifier {
@@ -17,8 +18,16 @@ public class ConsoleUtil {
 		FG_BLUE(34),
 		FG_MAGENTA(35),
 		FG_CYAN(36),
-		FG_WHITE(37),
+		FG_LIGHTGRAY(37),
 		FG_DEFAULT(39),
+		FG_DARKGRAY(90),
+		FG_LIGHTRED(91),
+		FG_LIGHTGREEN(92),
+		FG_LIGHTYELLOW(93),
+		FG_LIGHTBLUE(94),
+		FG_LIGHTMAGENTA(95),
+		FG_LIGHTCYAN(96),
+		FG_WHITE(97),
 		
 		// background
 		BG_BLACK(40),
@@ -28,9 +37,17 @@ public class ConsoleUtil {
 		BG_BLUE(44),
 		BG_MAGENTA(45),
 		BG_CYAN(46),
-		BG_WHITE(47),
-		BG_DEFAULT(49);
-		
+		BG_LIGHTGRAY(47),
+		BG_DEFAULT(49),
+		BG_DARKGRAY(100),
+		BG_LIGHTRED(101),
+		BG_LIGHTGREEN(102),
+		BG_LIGHTYELLOW(103),
+		BG_LIGHTBLUE(104),
+		BG_LIGHTMAGENTA(105),
+		BG_LIGHTCYAN(106),
+		BG_WHITE(107);
+
 		public final int value;
 
 		private OutputModifier(int value) {
@@ -38,8 +55,14 @@ public class ConsoleUtil {
 		}
 	};
 
+
+
 	public static String getColorStr(OutputModifier... modifiers) {
-		String str = "\033[";
+		return getColorStr(true, true, modifiers);
+	}
+
+	public static String getColorStr(boolean includePrefix, boolean includeSuffix, OutputModifier... modifiers) {
+		String str = includePrefix ? "\033[" : "";
 
 		for (int i = 0; i < modifiers.length; i++) {
 			str += modifiers[i].value;
@@ -48,7 +71,8 @@ public class ConsoleUtil {
 				str += ";";
 		}
 
-		str += "m";
+		if (includeSuffix)
+			str += "m";
 
 		return str;
 	}
