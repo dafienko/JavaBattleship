@@ -12,10 +12,11 @@ public class Board {
 	private static final String  // terminal color codes - https://i.stack.imgur.com/9UVnC.png
 		WATER_COLOR_1 = getColorStr(false, false, OutputModifier.BG_CYAN), 
 		WATER_COLOR_2 = getColorStr(false, false, OutputModifier.BG_LIGHTBLUE), 
-		HIT_COLOR = getColorStr(false, false, OutputModifier.FG_RED), 
-		MISS_FG_COLOR = getColorStr(false, false, OutputModifier.FG_YELLOW), 
-		SHIP_COLOR = getColorStr(false, false, OutputModifier.FG_WHITE, OutputModifier.BG_WHITE),
+		HIT_COLOR = getColorStr(false, false, OutputModifier.BG_WHITE, OutputModifier.FG_RED), 
+		MISS_FG_COLOR = getColorStr(false, false, OutputModifier.FG_LIGHTYELLOW), 
+		SHIP_COLOR = getColorStr(false, false, OutputModifier.BG_WHITE, OutputModifier.FG_WHITE),
 		RESET_COLOR = getColorStr(OutputModifier.RESET);
+
 
 	public enum CellState {
 		WATER {

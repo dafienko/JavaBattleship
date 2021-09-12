@@ -1,4 +1,3 @@
-import java.util.Scanner;
 import java.util.Random;
 
 public class Coordinate {
@@ -28,11 +27,9 @@ public class Coordinate {
 			String numStr = str.replaceAll("[^\\d.]", "");
 			x = Integer.parseInt(numStr);
 		} catch(NumberFormatException e) {
-			System.out.println("no row number given!");
 			return null;
 		}
 		if (x >= Board.WIDTH) {
-			System.out.println("row number out of range, must be less than " + Board.WIDTH);
 			return null;
 		}
 		
@@ -55,20 +52,6 @@ public class Coordinate {
 		return new Coordinate(x, y);
 	}
 
-	public static Coordinate scanCoordinate(Scanner scanner) {
-		Coordinate coord = null;
-		boolean first = true;
-		do {
-			String line = scanner.nextLine().toUpperCase();
-			if (!first) {
-				System.out.println("Invalid coordinate given, try again");
-			}
-			coord = Coordinate.getCoordinateFromString(line);
-			first = false;
-		} while (coord == null);
-
-		return coord;
-	}
 
 	@Override
 	public String toString() {

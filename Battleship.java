@@ -131,13 +131,21 @@ public class Battleship {
 			printGame(player, true);
 		}
 		Coordinate coord = player.guessCoordinate(scanner);
+		if (player.wantsToQuit) { 
+			return;
+		}
 
 		Board.HitData hitData = opponentBoard.shootAt(coord);
 		if (player.printGameOnTurn) {
 			printGame(player, true);
 		}
 		System.out.println(player + " guessed " + coord);
-		System.out.println(coord + " was a " + (hitData.hitShip ? "hit" : "miss") + "!");
+		System.out.println(
+			getColorStr(hitData.hitShip ? OutputModifier.FG_RED : OutputModifier.FG_LIGHTBLUE) +
+			coord + " was a " + (hitData.hitShip ? "hit" : "miss") + "!" + 
+			getColorStr(OutputModifier.RESET)
+		);
+
 		if (hitData.sunkShip != null) {
 			System.out.println(
 				getColorStr(OutputModifier.FG_RED) +
@@ -153,18 +161,21 @@ public class Battleship {
 	public void play() {
 		while (!gameOver()) {
 			doTurn(player1);
-			if (playerWon(player1)) {
+			if (player1.wantsToQuit || playerWon(player1))
 				break;
-			}
+			
 			doTurn(player2);
+			if (player2.wantsToQuit)
+				break;
 		}
 		
-		
-		Player victor = playerWon(player1) ? player1 : player2;
-		printGame(null, victor == player1);
-		System.out.println(
-			getColorStr(OutputModifier.FG_YELLOW) + victor + " Won!" + getColorStr(OutputModifier.RESET)
-		);
+		if (!(player1.wantsToQuit || player2.wantsToQuit)) {
+			Player victor = playerWon(player1) ? player1 : player2;
+			printGame(null, victor == player1);
+			System.out.println(
+				getColorStr(OutputModifier.FG_YELLOW) + victor + " Won!" + getColorStr(OutputModifier.RESET)
+			);
+		}
 		
 		scanner.close();
 	}

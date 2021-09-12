@@ -6,7 +6,8 @@ import static ConsoleUtil.ConsoleUtil.*;
 public class Player {
 	private static final Random rand = new Random();
 	private static final String importantStr = getColorStr(OutputModifier.FG_CYAN, OutputModifier.BG_DEFAULT);
-
+	
+	public boolean wantsToQuit = false;
 	private final String name;
 	protected final Board board, enemyBoard;
 
@@ -79,14 +80,33 @@ public class Player {
 	}
 
 	public Coordinate guessCoordinate(Scanner scanner) {
-		System.out.print("Guess a coordinate (enter a column number and a row letter): ");
-		Coordinate coord = Coordinate.scanCoordinate(scanner);
-		Board.CellState stateAtCoord = enemyBoard.getCellStateAtCoordinate(coord);
-		while (stateAtCoord == Board.CellState.HIT || stateAtCoord == Board.CellState.MISS) {
-			System.out.print("already guessed coordinate " + coord + ", guess again: ");
-			coord = Coordinate.scanCoordinate(scanner);
-			stateAtCoord = enemyBoard.getCellStateAtCoordinate(coord);
-		}
+		System.out.print("Guess a coordinate (enter a column number and a row letter), or type 'q' to quit: ");
+
+		Coordinate coord = null;
+		boolean first = true;
+
+		do {
+			if (!first) {
+				System.out.println("Invalid coordinate given, try again");
+			}
+			
+			String line = scanner.nextLine().toUpperCase();
+			if (line.contains("Q")) {
+				wantsToQuit = true;
+				return null;
+			}
+
+			coord = Coordinate.getCoordinateFromString(line);
+			if (coord != null) {
+				Board.CellState stateAtCoord = enemyBoard.getCellStateAtCoordinate(coord);
+				if (stateAtCoord == Board.CellState.HIT || stateAtCoord == Board.CellState.MISS) {
+					System.out.print("already guessed coordinate " + coord + ", guess again: ");
+					coord = null;
+				}
+			}
+
+			first = false;
+		} while (coord == null);
 		
 		return coord;
 	}

@@ -1,7 +1,6 @@
 package ConsoleUtil;
 
 //	https://misc.flogisoft.com/bash/tip_colors_and_formatting
-//	https://misc.flogisoft.com/bash/tip_colors_and_formatting
 
 public class ConsoleUtil {
 	public enum OutputModifier {
@@ -67,7 +66,7 @@ public class ConsoleUtil {
 		for (int i = 0; i < modifiers.length; i++) {
 			str += modifiers[i].value;
 
-			if (i > 0) 
+			if (i < modifiers.length - 1) 
 				str += ";";
 		}
 
