@@ -83,10 +83,10 @@ public class Player {
 		System.out.print("Guess a coordinate (enter a column number and a row letter), or type 'q' to quit: ");
 
 		Coordinate coord = null;
-		boolean first = true;
+		boolean firstTry = true;
 
 		do {
-			if (!first) {
+			if (!firstTry) {
 				System.out.println("Invalid coordinate given, try again");
 			}
 			
@@ -105,7 +105,7 @@ public class Player {
 				}
 			}
 
-			first = false;
+			firstTry = false;
 		} while (coord == null);
 		
 		return coord;

@@ -1,8 +1,5 @@
 import java.util.Scanner;
 
-import static org.junit.Assert.*;
-import org.junit.Test;
-
 import static ConsoleUtil.ConsoleUtil.*;
 
 public class Battleship {
@@ -78,51 +75,56 @@ public class Battleship {
 		final String rightColor = isPlayerTurn ? inactiveTurnColor : activeTurnColor;
 		final String separator = resetColor + "        " + rightColor;
 
-		String str = "";
+		String gameConsoleStr = "";
 
 		String BC = " "; // border character
-		str += leftColor;
+		gameConsoleStr += leftColor;
 	
 		// top border
 		int lNameLen = playerPerspective.toString().length();
 		int rNameLen = opponent.toString().length();
 
-		str += BC.repeat(1 + (Board.WIDTH - lNameLen) / 2) + playerPerspective + BC.repeat(1 + (int)Math.ceil((float)(Board.WIDTH - lNameLen) / 2.0f));
-		str += separator;
-		str += BC.repeat(1 + (Board.WIDTH - rNameLen) / 2) + opponent + BC.repeat(1 + (int)Math.ceil((float)(Board.WIDTH - rNameLen) / 2.0f));
-		str += resetColor + "\n";
+		// first line -  "BBplayer1BBB        BBplayer2BBB"
+		gameConsoleStr += BC.repeat(1 + (Board.WIDTH - lNameLen) / 2) + 
+			playerPerspective + 
+			BC.repeat(1 + (int)Math.ceil((float)(Board.WIDTH - lNameLen) / 2.0f));
+		gameConsoleStr += separator;
+		gameConsoleStr += BC.repeat(1 + (Board.WIDTH - rNameLen) / 2) + 
+			opponent + 
+			BC.repeat(1 + (int)Math.ceil((float)(Board.WIDTH - rNameLen) / 2.0f));
+		gameConsoleStr += resetColor + "\n";
 
 		// board rows
 		for (int y = 0; y < Board.HEIGHT; y++) {
-			str += leftColor + (char)('A' + y) + leftBoard.getRowString(y, true) + leftColor + BC + 
+			gameConsoleStr += leftColor + (char)('A' + y) + leftBoard.getRowString(y, true) + leftColor + BC + 
 				separator + (char)('A' + y) + rightBoard.getRowString(y, false || showBoth) + rightColor + BC + resetColor;
 
 			if (y < SHIP_NAMES.length) {
 				String displayShipName = SHIP_NAMES[y];
-				str += "\t" + displayShipName + ": " + 
+				gameConsoleStr += "\t" + displayShipName + ": " + 
 					(playerPerspective.enemyBoard.isShipAlive(displayShipName) ? "☐" : "☑");
 			}
 
-			str += "\n";
+			gameConsoleStr += "\n";
 		} 
 
-		// bottom border
-		str += leftColor + BC;
+		// bottom border - "BBBBBBBBBBBB        BBBBBBBBBBBB"
+		gameConsoleStr += leftColor + BC;
 		for (int x = 0; x < Board.WIDTH; x++) {
-			str += x;
+			gameConsoleStr += x;
 		}
-		str += BC + separator + rightColor + BC;
+		gameConsoleStr += BC + separator + rightColor + BC;
 		for (int x = 0; x < Board.WIDTH; x++) {
-			str += x;
+			gameConsoleStr += x;
 		}
-		str += BC;
+		gameConsoleStr += BC;
 
-		str += resetColor;
+		gameConsoleStr += resetColor;
 
-		System.out.println(str);
+		System.out.println(gameConsoleStr);
 	}
 
-	private void doTurn(Player player) {
+	private void runPlayerTurn(Player player) {
 		Player opponent = player == player1 ? player2 : player1;
 		Board opponentBoard = player == player1 ? player2Board : player1Board;
 
@@ -160,11 +162,11 @@ public class Battleship {
 
 	public void play() {
 		while (!gameOver()) {
-			doTurn(player1);
+			runPlayerTurn(player1);
 			if (player1.wantsToQuit || playerWon(player1))
 				break;
 			
-			doTurn(player2);
+			runPlayerTurn(player2);
 			if (player2.wantsToQuit)
 				break;
 		}
@@ -184,45 +186,5 @@ public class Battleship {
 		Battleship game = new Battleship();
 		game.placeShips();
 		game.play();
-	}
-
-	@Test
-	public void testCoordinates() {
-		Coordinate a01 = new Coordinate(0, 'A');
-		Coordinate a02 = new Coordinate(0, 0);
-		Coordinate a03 = Coordinate.getCoordinateFromString("a0");
-		Coordinate a04 = Coordinate.getCoordinateFromString("0a");
-		assertEquals(a01, a02);
-		assertEquals(a02, a03);
-		assertEquals(a02, a04);
-	}
-
-	@Test 
-	public void testColorText() {
-		System.out.println(
-			getColorStr(OutputModifier.UNDERLINE, OutputModifier.FG_RED) +
-			"red underlined text" + 
-			getColorStr(OutputModifier.RESET)
-		);
-
-		System.out.println("normal text");
-
-		System.out.println(
-			getColorStr(OutputModifier.BLINKING, OutputModifier.FG_GREEN) +
-			"green blinking text" + 
-			getColorStr(OutputModifier.RESET)
-		);
-
-		System.out.println(
-			getColorStr(OutputModifier.FG_RED, OutputModifier.BG_YELLOW) +
-			"red text yellow background" + 
-			getColorStr(OutputModifier.RESET)
-		);
-
-		System.out.println(
-			getColorStr(OutputModifier.FG_BLUE, OutputModifier.BG_WHITE) +
-			"blue text white background" + 
-			getColorStr(OutputModifier.RESET)
-		);
 	}
 }

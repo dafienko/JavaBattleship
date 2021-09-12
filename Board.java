@@ -148,9 +148,7 @@ public class Board {
 
 		return new HitData(hitShip, sunkShip);
 	}
-
-
-
+	
 	private String getCellColor(CellState cellState, int x, int y) {
 		String color = "\033[";
 		if (cellState == CellState.WATER || cellState == CellState.MISS) {

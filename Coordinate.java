@@ -10,9 +10,9 @@ public class Coordinate {
 		this.y = y;
 	}
 
-	public Coordinate(int x, char c) {
+	public Coordinate(int x, char rowLetter) {
 		this.x = x;
-		this.y = Character.toString(c).toUpperCase().charAt(0) - 'A';
+		this.y = Character.toString(rowLetter).toUpperCase().charAt(0) - 'A';
 	}
 
 	public static Coordinate random() {
@@ -24,7 +24,7 @@ public class Coordinate {
 		
 		int x;
 		try {
-			String numStr = str.replaceAll("[^\\d.]", "");
+			String numStr = str.replaceAll("[^\\d.]", ""); // remove any non-number characters
 			x = Integer.parseInt(numStr);
 		} catch(NumberFormatException e) {
 			return null;
@@ -41,11 +41,9 @@ public class Coordinate {
 			}
 		}
 		if (y == '\0') {
-			System.out.println("no column letter given");
 			return null;
 		}
 		if (y > 'A' + Board.HEIGHT - 1) {
-			System.out.println("column letter out of range, must between 'A' and '" + (char)('A' + Board.HEIGHT - 1) + "'");
 			return null;
 		}
 
